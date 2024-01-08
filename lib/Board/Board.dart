@@ -1,13 +1,15 @@
-import 'package:chess_app/models/cell.dart';
-import 'package:gamehub/Board/
+import 'package:gamehub/Board/cell.dart';
+import 'package:gamehub/Board/cell_pos.dart';
+import 'package:gamehub/pawns/lostPawn.dart';
+import 'package:gamehub/pawns/pawn.dart';
 
 const boardSize = 8;
 
 class Board {
   final List<List<Cell>> cells;
 
-  final LostFigures blackLost;
-  final LostFigures whiteLost;
+  final LostPawns blackLost;
+  final LostPawns whiteLost;
 
   Board({required this.cells, required this.blackLost, required this.whiteLost});
 
@@ -27,18 +29,30 @@ class Board {
     }
   }
 
-  void pushFigureLoLost(Figure lostFigure) {
-    if (lostFigure.isBlack) {
-      blackLost.push(lostFigure);
+  void pushPawnLoLost(Pawn lostPawn) {
+    if (lostPawn.isBlack) {
+      blackLost.push(lostPawn);
     }
 
-    if (lostFigure.isWhite) {
-      whiteLost.push(lostFigure);
+    if (lostPawn.isWhite) {
+      whiteLost.push(lostPawn);
     }
   }
 
   Set<String> getAvailablePositionsHash(Cell? selectedCell) {
-    return CellCalculator.getAvailablePositionsHash(this, selectedCell);
+    final Set<String> availableCells = {};
+
+    if (selectedCell == null || !selectedCell.occupied) return availableCells;
+
+    for (int y = 0; y < boardSize; y++) {
+      for (int x = 0; x < boardSize; x++) {
+        final target = getCellAt(x, y);
+        if (selectedCell.getPawn()!.availableForMove(target)) {
+          availableCells.add(target.positionHash);
+        }
+      }
+    }
+    return availableCells;
   }
 
   Board copyThis() {

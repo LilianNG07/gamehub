@@ -1,5 +1,5 @@
-import 'package:chess_app/models/board.dart';
-import 'package:chess_app/models/cell_position.dart';
+import 'package:gamehub/Board/Board.dart';
+import 'package:gamehub/Board/cell_pos.dart';
 import 'package:gamehub/pawns/pawn.dart';
 import 'package:gamehub/pawns/color.dart';
 
@@ -51,7 +51,7 @@ class Cell {
     if (pawn.availableForMove(target)) {
       if (target.occupied) {
         assert(target.getPawn() != null);
-        board.pushFigureLoLost(target.getPawn()!);
+        board.pushPawnLoLost(target.getPawn()!);
       }
 
       target.setPawn(pawn);
