@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gamehub/resume.dart';
+import 'package:gamehub/setting.dart';
 import 'chess_game.dart'; // Assurez-vous que ce fichier existe et contient le widget ChessBoardPage
 
 class MyHomePage extends StatefulWidget {
@@ -58,7 +60,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     padding: const EdgeInsets.all(8.0),
                     child: ElevatedButton(
                       onPressed: () {
-                        // Action pour le Bouton 'Resume Game'
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ResumePage()),
+                        );
                       },
                       child: Text('Resume Game'),
                     ),
@@ -74,7 +79,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     padding: const EdgeInsets.all(8.0),
                     child: ElevatedButton(
                       onPressed: () {
-                        // Action pour le Bouton 'Settings'
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SettingsPage()),
+                        );
                       },
                       child: Text('Settings'),
                     ),
