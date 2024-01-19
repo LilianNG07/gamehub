@@ -115,4 +115,4 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
     );
   }
 
-}
+
