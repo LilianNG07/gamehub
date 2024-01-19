@@ -6,4 +6,4 @@ class ChessPiece {
   int x, y; // Position sur l'échiquier
 
   ChessPiece(this.type, this.color, this.x, this.y, {this.selected = false, this.canMove = false});
-}
+
