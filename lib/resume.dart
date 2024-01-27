@@ -37,4 +37,4 @@ class _ResumePageState extends State<ResumePage> {
       ),
     );
   }
-
+}

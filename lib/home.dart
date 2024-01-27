@@ -28,8 +28,12 @@ class _MyHomePageState extends State<MyHomePage> {
               spacing: 8.0, // Espace horizontal entre les enfants
               alignment: WrapAlignment.center,
               children: <Widget>[
-                Image.asset('assets/img/theme_defaut/black/queen.png', width: 100, height: 100),
-                Image.asset('assets/img/theme_defaut/white/queen.png', width: 100, height: 100),
+                Image.asset(
+                    'assets/img/theme_defaut/black/queen.png', width: 100,
+                    height: 100),
+                Image.asset(
+                    'assets/img/theme_defaut/white/queen.png', width: 100,
+                    height: 100),
               ],
             ),
             SizedBox(height: 20),
@@ -43,7 +47,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => ChessBoardPage()),
+                          MaterialPageRoute(builder: (context) =>
+                              ChessBoardPage()),
                         );
                       },
                       child: Text('New Game'),
@@ -81,7 +86,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => SettingsPage()),
+                          MaterialPageRoute(builder: (context) =>
+                              SettingsPage()),
                         );
                       },
                       child: Text('Settings'),
@@ -95,4 +101,5 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+}
 
