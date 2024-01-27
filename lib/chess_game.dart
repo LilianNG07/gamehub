@@ -19,10 +19,20 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
   }
 
   List<List<ChessPiece?>> initializeChessBoard() {
-    List<List<ChessPiece?>> board = List.generate(8, (_) => List.filled(8, null));
+    List<List<ChessPiece?>> board = List.generate(
+        8, (_) => List.filled(8, null));
     String black = 'black';
     String white = 'white';
-    List<String> pieceTypes = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
+    List<String> pieceTypes = [
+      'rook',
+      'knight',
+      'bishop',
+      'queen',
+      'king',
+      'bishop',
+      'knight',
+      'rook'
+    ];
 
     for (int i = 0; i < 8; i++) {
       board[0][i] = ChessPiece(pieceTypes[i], black, 0, i);
@@ -36,7 +46,8 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
 
   Widget buildChessBoard() {
     return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 8),
       itemCount: 64,
       itemBuilder: (context, index) {
         int row = index ~/ 8;
@@ -47,10 +58,15 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
           onTap: () => onTileTapped(piece, row, col),
           child: Container(
             decoration: BoxDecoration(
-              color: (row + col) % 2 == 0 ? Colors.brown[700] : Colors.brown[300],
-              border: piece == selectedPiece ? Border.all(color: Colors.red, width: 2) : null,
+              color: (row + col) % 2 == 0 ? Colors.brown[700] : Colors
+                  .brown[300],
+              border: piece == selectedPiece ? Border.all(
+                  color: Colors.red, width: 2) : null,
             ),
-            child: piece != null ? Image.asset('assets/img/theme_defaut/${piece.color}/${piece.type}.png') : null,
+            child: piece != null
+                ? Image.asset(
+                'assets/img/theme_defaut/${piece.color.toString()}/${piece.type.toString()}.png')
+                : null,
           ),
         );
       },
@@ -63,22 +79,25 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
         // Sélectionner la pièce
         selectedPiece = piece;
       } else if (selectedPiece != null) {
-        // Déplacer la pièce si le mouvement est valide (logique à implémenter)
-        if (piece == null || piece.color != selectedPiece!.color) {
-          // Capture d'une pièce adverse
-          if (piece != null) {
-            if (piece.color == 'black') {
-              blackDeadPieces.add(piece);
-            } else {
-              whiteDeadPieces.add(piece);
+        //mettre les pos sélectionnées dans les méthodes de déplacements des pièces.
+        selectedPiece!.canMove = selectedPiece!.availableForMove(row, col, piece);
+        if (selectedPiece!.canMove == true){
+          if (piece == null || piece.color != selectedPiece!.color) {
+            // Capture d'une pièce adverse
+            if (piece != null) {
+              if (piece.color == 'black') {
+                blackDeadPieces.add(piece);
+              } else {
+                whiteDeadPieces.add(piece);
+              }
             }
+            // Mise à jour de la position de la pièce
+            board[selectedPiece!.x][selectedPiece!.y] = null;
+            board[row][col] = selectedPiece;
+            selectedPiece!.x = row;
+            selectedPiece!.y = col;
+            selectedPiece = null;
           }
-          // Mise à jour de la position de la pièce
-          board[selectedPiece!.x][selectedPiece!.y] = null;
-          board[row][col] = selectedPiece;
-          selectedPiece!.x = row;
-          selectedPiece!.y = col;
-          selectedPiece = null;
         }
       }
     });
@@ -92,13 +111,17 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
       ),
       body: Column(
         children: [
-          _buildCapturedPiecesRow(blackDeadPieces), // Affiche les pièces noires capturées
-          Expanded(child: buildChessBoard()), // L'échiquier
-          _buildCapturedPiecesRow(whiteDeadPieces), // Affiche les pièces blanches capturées
+          _buildCapturedPiecesRow(blackDeadPieces),
+          // Affiche les pièces noires capturées
+          Expanded(child: buildChessBoard()),
+          // L'échiquier
+          _buildCapturedPiecesRow(whiteDeadPieces),
+          // Affiche les pièces blanches capturées
         ],
       ),
     );
   }
+
   Widget _buildCapturedPiecesRow(List<ChessPiece> capturedPieces) {
     return Container(
       padding: EdgeInsets.all(8.0),
@@ -108,11 +131,13 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
         children: capturedPieces.map((piece) {
           return Padding(
             padding: EdgeInsets.all(4.0),
-            child: Image.asset('assets/img/theme_defaut/${piece.color}/${piece.type}.png', width: 30, height: 30),
+            child: Image.asset(
+                'assets/img/theme_defaut/${piece.color.toString()}/${piece.type.toString()}.png',
+                width: 30, height: 30),
           );
         }).toList(),
       ),
     );
   }
-
+}
 
