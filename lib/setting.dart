@@ -6,10 +6,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool soundEnabled = true;
-  bool notificationsEnabled = true;
-  String language = 'English';
-  String theme = 'Classic';
+  String theme = 'default';
   String difficulty = 'Medium';
 
   @override
@@ -20,42 +17,6 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       body: ListView(
         children: <Widget>[
-          SwitchListTile(
-            title: Text('Sound'),
-            value: soundEnabled,
-            onChanged: (bool value) {
-              setState(() {
-                soundEnabled = value;
-              });
-            },
-          ),
-          SwitchListTile(
-            title: Text('Notifications'),
-            value: notificationsEnabled,
-            onChanged: (bool value) {
-              setState(() {
-                notificationsEnabled = value;
-              });
-            },
-          ),
-          ListTile(
-            title: Text('Language'),
-            trailing: DropdownButton<String>(
-              value: language,
-              onChanged: (String? newValue) {
-                setState(() {
-                  language = newValue!;
-                });
-              },
-              items: <String>['English', 'French', 'Spanish', 'German']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-          ),
           ListTile(
             title: Text('Theme'),
             trailing: DropdownButton<String>(
@@ -65,7 +26,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   theme = newValue!;
                 });
               },
-              items: <String>['Classic', 'Modern', 'Fantasy', 'Sci-fi']
+              items: <String>['Default', 'Classic']
                   .map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
