@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'ChessPiece.dart'; // Assurez-vous que cette classe est correctement définie
 
@@ -46,26 +48,31 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
 
   Widget buildChessBoard() {
     return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 8),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8),
       itemCount: 64,
       itemBuilder: (context, index) {
         int row = index ~/ 8;
         int col = index % 8;
         ChessPiece? piece = board[row][col];
 
+        // Détermine si la case est un mouvement valide pour la pièce sélectionnée
+        // et s'assure que la case cible ne contient pas une pièce de la même couleur
+        bool isMoveValid = selectedPiece != null &&
+            selectedPiece!.availableForMove(board, row, col, piece) &&
+            (piece == null || piece.color != selectedPiece!.color);
+
         return GestureDetector(
           onTap: () => onTileTapped(piece, row, col),
           child: Container(
             decoration: BoxDecoration(
-              color: (row + col) % 2 == 0 ? Colors.brown[700] : Colors
-                  .brown[300],
-              border: piece == selectedPiece ? Border.all(
-                  color: Colors.red, width: 2) : null,
+              color: (row + col) % 2 == 0 ? Colors.brown[700] : Colors.brown[300],
+              // Appliquer une bordure verte pour les mouvements valides,
+              // mais pas si la case cible contient une pièce de la même couleur
+              border: isMoveValid ? Border.all(color: Colors.green, width: 2)
+                  : (selectedPiece != null && piece == selectedPiece ? Border.all(color: Colors.red, width: 2) : null),
             ),
             child: piece != null
-                ? Image.asset(
-                'assets/img/theme_defaut/${piece.color.toString()}/${piece.type.toString()}.png')
+                ? Image.asset('assets/img/theme_defaut/${piece.color.toString()}/${piece.type.toString()}.png')
                 : null,
           ),
         );
@@ -73,35 +80,102 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
     );
   }
 
+  void printBoardAsJson(List<List<ChessPiece?>> board) {
+    List<List<Map<String, dynamic>>> boardJson = [];
+
+    for (var row in board) {
+      List<Map<String, dynamic>> rowJson = [];
+      for (var piece in row) {
+        if (piece != null) {
+          rowJson.add({
+            'type': piece.type,
+            'color': piece.color,
+            'x': piece.x,
+            'y': piece.y,
+            'selected': piece.selected,
+            'canMove': piece.canMove,
+          });
+        } else {
+          rowJson.add({});
+        }
+      }
+      boardJson.add(rowJson);
+    }
+
+    String jsonBoard = jsonEncode(boardJson);
+    print(jsonBoard);
+  }
+
+  void updateBoardFromJson(String jsonBoard) {
+    List<dynamic> boardData = jsonDecode(jsonBoard);
+    List<List<ChessPiece?>> newBoard = [];
+
+    for (int i = 0; i < boardData.length; i++) {
+      List<ChessPiece?> newRow = [];
+      for (int j = 0; j < boardData[i].length; j++) {
+        var pieceData = boardData[i][j];
+        if (pieceData != null) {
+          newRow.add(ChessPiece(
+            pieceData['type'],
+            pieceData['color'],
+            pieceData['x'],
+            pieceData['y'],
+            selected: pieceData['selected'] ?? false,
+            canMove: pieceData['canMove'] ?? false,
+          ));
+        } else {
+          newRow.add(null);
+        }
+      }
+      newBoard.add(newRow);
+    }
+
+    setState(() {
+      board = newBoard;
+    });
+  }
+
   void onTileTapped(ChessPiece? piece, int row, int col) {
     setState(() {
       if (selectedPiece == null && piece != null) {
-        // Sélectionner la pièce
+        // Sélectionner la pièce si aucune n'est actuellement sélectionnée
         selectedPiece = piece;
       } else if (selectedPiece != null) {
-        //mettre les pos sélectionnées dans les méthodes de déplacements des pièces.
-        selectedPiece!.canMove = selectedPiece!.availableForMove(row, col, piece);
-        if (selectedPiece!.canMove == true){
-          if (piece == null || piece.color != selectedPiece!.color) {
-            // Capture d'une pièce adverse
-            if (piece != null) {
-              if (piece.color == 'black') {
-                blackDeadPieces.add(piece);
-              } else {
-                whiteDeadPieces.add(piece);
+        if (piece != null && piece.color == selectedPiece!.color) {
+          // Si la pièce cliquée est de la même couleur, la sélectionner
+          selectedPiece = piece;
+        } else {
+          // Vérifier si le mouvement est valide
+          selectedPiece!.canMove = selectedPiece!.availableForMove(board, row, col, piece);
+
+          if (selectedPiece!.canMove) {
+            // Mouvement valide ou capture
+            if (piece == null || piece.color != selectedPiece!.color) {
+              // Capture d'une pièce adverse ou déplacement
+              if (piece != null) {
+                if (piece.color == 'black') {
+                  blackDeadPieces.add(piece);
+                } else {
+                  whiteDeadPieces.add(piece);
+                }
               }
+              // Mise à jour de la position de la pièce
+              board[selectedPiece!.x][selectedPiece!.y] = null;
+              board[row][col] = selectedPiece;
+              selectedPiece!.x = row;
+              selectedPiece!.y = col;
+              selectedPiece = null;
+
             }
-            // Mise à jour de la position de la pièce
-            board[selectedPiece!.x][selectedPiece!.y] = null;
-            board[row][col] = selectedPiece;
-            selectedPiece!.x = row;
-            selectedPiece!.y = col;
+          } else {
+            // Mouvement invalide, désélectionner la pièce
             selectedPiece = null;
           }
         }
       }
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -123,14 +197,17 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
   }
 
   Widget _buildCapturedPiecesRow(List<ChessPiece> capturedPieces) {
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Container(
-      padding: EdgeInsets.all(8.0),
+      height: screenHeight * 0.20, // 22% de la hauteur de l'écran
+      padding: EdgeInsets.zero, // Padding à 0
       color: Colors.grey[200], // Couleur de fond pour la distinction
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: capturedPieces.map((piece) {
           return Padding(
-            padding: EdgeInsets.all(4.0),
+            padding: EdgeInsets.zero, // Padding à 0 pour chaque élément
             child: Image.asset(
                 'assets/img/theme_defaut/${piece.color.toString()}/${piece.type.toString()}.png',
                 width: 30, height: 30),
@@ -139,5 +216,6 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
       ),
     );
   }
+
 }
 

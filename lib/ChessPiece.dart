@@ -9,10 +9,16 @@ class ChessPiece {
   ChessPiece(this.type, this.color, this.x, this.y,
       {this.selected = false, this.canMove = false});
 
-  bool availableForMove(int xTarget, int yTarget, ChessPiece? piece) {
-    if(type=='rook'){
-      if (linearMov.hasHorizontalWay(x, y, xTarget, yTarget)) return true;
-      if (linearMov.hasVerticalWay(x, y, xTarget, yTarget)) return true;
+  bool availableForMove(List<List<ChessPiece?>> board, int xTarget, int yTarget, ChessPiece? piece) {
+    if (type == 'rook') {
+      if (linearMov.hasHorizontalWay(x, y, xTarget, yTarget) &&
+          linearMov.isPathClear(board, x, y, xTarget, yTarget)) {
+        return true;
+      }
+      if (linearMov.hasVerticalWay(x, y, xTarget, yTarget) &&
+          linearMov.isPathClear(board, x, y, xTarget, yTarget)) {
+        return true;
+      }
     }
 
     if(type=='knight'){
@@ -22,14 +28,20 @@ class ChessPiece {
       if ((dx == 1 && dy == 2) || (dx == 2 && dy == 1)) return true;
     }
 
-    if(type=='bishop'){
-      if (linearMov.hasDiagonalWay(x, y, xTarget, yTarget)) return true;
+    if (type == 'bishop') {
+      if (linearMov.hasDiagonalWay(x, y, xTarget, yTarget) &&
+          linearMov.isPathClear(board, x, y, xTarget, yTarget)) {
+        return true;
+      }
     }
 
-    if(type=='queen'){
-      if (linearMov.hasHorizontalWay(x, y, xTarget, yTarget)) return true;
-      if (linearMov.hasVerticalWay(x, y, xTarget, yTarget)) return true;
-      if (linearMov.hasDiagonalWay(x, y, xTarget, yTarget)) return true;
+    if (type == 'queen') {
+      if ((linearMov.hasHorizontalWay(x, y, xTarget, yTarget) ||
+          linearMov.hasVerticalWay(x, y, xTarget, yTarget) ||
+          linearMov.hasDiagonalWay(x, y, xTarget, yTarget)) &&
+          linearMov.isPathClear(board, x, y, xTarget, yTarget)) {
+        return true;
+      }
     }
 
     if(type=='king'){
