@@ -9,17 +9,18 @@ class ChessBoardPage extends StatefulWidget {
 }
 
 class _ChessBoardPageState extends State<ChessBoardPage> {
-  late List<List<ChessPiece?>> board;
-  ChessPiece? selectedPiece;
+  late List<List<ChessPiece?>> board; // Matrice représentant l'échiquier
+  ChessPiece? selectedPiece;  // Pièce sélectionnée
   List<ChessPiece> blackDeadPieces = []; // Pièces noires capturées
   List<ChessPiece> whiteDeadPieces = []; // Pièces blanches capturées
+  String colorTurn = 'white'; //couleur premier tour
 
   @override
   void initState() {
     super.initState();
     board = initializeChessBoard();
   }
-
+  // Méthode pour initialiser l'échiquier avec les pièces
   List<List<ChessPiece?>> initializeChessBoard() {
     List<List<ChessPiece?>> board = List.generate(
         8, (_) => List.filled(8, null));
@@ -35,7 +36,7 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
       'knight',
       'rook'
     ];
-
+    // Placement des pièces sur l'échiquier
     for (int i = 0; i < 8; i++) {
       board[0][i] = ChessPiece(pieceTypes[i], black, 0, i);
       board[1][i] = ChessPiece('pawn', black, 1, i);
@@ -80,6 +81,9 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
     );
   }
 
+  // Méthode pour imprimer l'état de l'échiquier en format JSON
+  // Convertit la matrice d'objets ChessPiece en une structure JSON
+  // Imprime la chaîne JSON résultante
   void printBoardAsJson(List<List<ChessPiece?>> board) {
     List<List<Map<String, dynamic>>> boardJson = [];
 
@@ -105,7 +109,9 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
     String jsonBoard = jsonEncode(boardJson);
     print(jsonBoard);
   }
-
+  // Méthode pour mettre à jour l'échiquier à partir d'une chaîne JSON
+  // Convertit la chaîne JSON en une matrice d'objets ChessPiece
+  // Met à jour l'état de l'échiquier avec la nouvelle matrice
   void updateBoardFromJson(String jsonBoard) {
     List<dynamic> boardData = jsonDecode(jsonBoard);
     List<List<ChessPiece?>> newBoard = [];
@@ -135,12 +141,18 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
     });
   }
 
+  // Méthode appelée lorsqu'une case est tapée
   void onTileTapped(ChessPiece? piece, int row, int col) {
     setState(() {
-      if (selectedPiece == null && piece != null) {
+      if (selectedPiece == null  && piece != null) {
         // Sélectionner la pièce si aucune n'est actuellement sélectionnée
         selectedPiece = piece;
-      } else if (selectedPiece != null) {
+        //Vérifie qu'on a bien sélectionner une pièce de la bonne couleur
+        if(selectedPiece!.color != colorTurn){
+          selectedPiece = null;
+        }
+      }
+      else if (selectedPiece != null) {
         if (piece != null && piece.color == selectedPiece!.color) {
           // Si la pièce cliquée est de la même couleur, la sélectionner
           selectedPiece = piece;
@@ -164,8 +176,15 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
               board[row][col] = selectedPiece;
               selectedPiece!.x = row;
               selectedPiece!.y = col;
-              selectedPiece = null;
+              //change la prochaine couleur de pièce à jouer
+              if(selectedPiece!.color == 'white') {
+                colorTurn = 'black';
+              }
+              else {
+                colorTurn = 'white';
 
+              }
+              selectedPiece = null;
             }
           } else {
             // Mouvement invalide, désélectionner la pièce
@@ -176,7 +195,7 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
     });
   }
 
-
+  // Méthode pour construire l'interface utilisateur de la page
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -196,6 +215,7 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
     );
   }
 
+  // Méthode pour construire la ligne de pièces capturées
   Widget _buildCapturedPiecesRow(List<ChessPiece> capturedPieces) {
     double screenHeight = MediaQuery.of(context).size.height;
 
@@ -218,4 +238,7 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
   }
 
 }
+
+
+
 
