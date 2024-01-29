@@ -26,7 +26,7 @@ packages:
     source: hosted
     version: "1.3.0"
   chess:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: chess
       sha256: "69dd13135d2ad3fb523483488db811d4aea2e550bfd6454e93ceccaf042a8614"
